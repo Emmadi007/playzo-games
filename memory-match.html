@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Match | PLAYZO</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px 14px 35px;
+  min-height: 100vh;
+  background: #101827;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+header {
+  max-width: 600px;
+  margin: 0 auto 35px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  color: #65e6c2;
+  font-size: 23px;
+  font-weight: 900;
+}
+
+.home {
+  color: white;
+  text-decoration: none;
+}
+
+h1 {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #aab6c8;
+  margin-bottom: 25px;
+}
+
+.stats {
+  max-width: 500px;
+  margin: auto auto 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.stat {
+  background: #202d40;
+  padding: 13px 5px;
+  border-radius: 12px;
+}
+
+.stat small {
+  display: block;
+  color: #aab6c8;
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+
+.stat strong {
+  color: #65e6c2;
+  font-size: 20px;
+}
+
+.board {
+  max-width: 430px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.card {
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 14px;
+  background: #7350d9;
+  color: white;
+  font-size: clamp(25px, 8vw, 40px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 0 #4b329c;
+  touch-action: manipulation;
+}
+
+.card .emoji {
+  display: none;
+}
+
+.card.flipped,
+.card.matched {
+  background: #e5f4ff;
+  color: #17243a;
+  box-shadow: 0 4px 0 #a8c8e5;
+}
+
+.card.flipped .emoji,
+.card.matched .emoji {
+  display: block;
+}
+
+.card.matched {
+  background: #b9f2d6;
+  box-shadow: 0 4px 0 #70c99d;
+  cursor: default;
+}
+
+.card:disabled {
+  cursor: default;
+}
+
+#restart {
+  margin-top: 25px;
+  padding: 14px 35px;
+  border: none;
+  border-radius: 30px;
+  background: #8050e8;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#message {
+  color: #65e6c2;
+  font-weight: bold;
+  min-height: 25px;
+  margin-top: 20px;
+}
+
+.instructions {
+  color: #aab6c8;
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 430px;
+  margin: 25px auto;
+}
+
+footer {
+  color: #78869a;
+  font-size: 12px;
+  margin-top: 35px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🎮 PLAYZO</div>
+  <a class="home" href="./index.html">← Home</a>
+</header>
+
+<h1>🧠 MEMORY MATCH</h1>
+<p class="subtitle">Find all 6 matching pairs!</p>
+
+<div class="stats">
+  <div class="stat">
+    <small>MOVES</small>
+    <strong id="moves">0</strong>
+  </div>
+  <div class="stat">
+    <small>TIME</small>
+    <strong id="time">0s</strong>
+  </div>
+  <div class="stat">
+    <small>BEST MOVES</small>
+    <strong id="best">--</strong>
+  </div>
+</div>
+
+<div class="board" id="board"></div>
+
+<div id="message">Find the matching pairs!</div>
+
+<button id="restart" type="button">↻ RESTART GAME</button>
+
+<p class="instructions">
+  How to play:<br>
+  1. Tap any card to reveal its emoji.<br>
+  2. Tap another card to find its pair.<br>
+  3. Match all 6 pairs to win.<br>
+  4. Complete the game in fewer moves to beat your best score.
+</p>
+
+<footer>© 2026 PLAYZO · Play More. Have Fun.</footer>
+
+<script>
+const board = document.getElementById("board");
+const movesDisplay = document.getElementById("moves");
+const timeDisplay = document.getElementById("time");
+const bestDisplay = document.getElementById("best");
+const message = document.getElementById("message");
+const restartButton = document.getElementById("restart");
+
+const emojis = ["🍎", "🚀", "🐱", "⚽", "🌟", "🎸"];
+
+let firstCard = null;
+let secondCard = null;
+let locked = false;
+let moves = 0;
+let matches = 0;
+let seconds = 0;
+let timer = null;
+let started = false;
+let best = null;
+
+try {
+  const saved = Number(localStorage.getItem("playzoMemoryBest"));
+  if (Number.isInteger(saved) && saved > 0) {
+    best = saved;
+  }
+} catch (error) {
+  best = null;
+}
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function startTimer() {
+  if (started) return;
+
+  started = true;
+
+  timer = setInterval(function() {
+    seconds++;
+    timeDisplay.textContent = seconds + "s";
+  }, 1000);
+}
+
+function createBoard() {
+  board.innerHTML = "";
+
+  const cards = shuffle([...emojis, ...emojis]);
+
+  cards.forEach(function(emoji) {
+    const card = document.createElement("button");
+    card.className = "card";
+    card.type = "button";
+    card.setAttribute("aria-label", "Hidden card");
+
+    const hidden = document.createElement("span");
+    hidden.textContent = "?";
+
+    const face = document.createElement("span");
+    face.className = "emoji";
+    face.textContent = emoji;
+
+    card.appendChild(hidden);
+    card.appendChild(face);
+
+    card.addEventListener("click", function() {
+      flipCard(card, emoji);
+    });
+
+    board.appendChild(card);
+  });
+}
+
+function flipCard(card, emoji) {
+  if (locked) return;
+  if (card === firstCard) return;
+  if (card.classList.contains("matched")) return;
+  if (card.classList.contains("flipped")) return;
+
+  startTimer();
+
+  card.classList.add("flipped");
+  card.setAttribute("aria-label", emoji);
+
+  if (!firstCard) {
+    firstCard = card;
+    firstCard.dataset.emoji = emoji;
+    return;
+  }
+
+  secondCard = card;
+  secondCard.dataset.emoji = emoji;
+
+  moves++;
+  movesDisplay.textContent = moves;
+
+  if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+    firstCard.classList.add("matched");
+    secondCard.classList.add("matched");
+
+    firstCard.disabled = true;
+    secondCard.disabled = true;
+
+    matches++;
+    resetTurn();
+
+    if (matches === 6) {
+      finishGame();
+    } else {
+      message.textContent = "Great match! Keep going!";
+    }
+  } else {
+    locked = true;
+    message.textContent = "Not a match. Try again!";
+
+    setTimeout(function() {
+      firstCard.classList.remove("flipped");
+      secondCard.classList.remove("flipped");
+
+      firstCard.setAttribute("aria-label", "Hidden card");
+      secondCard.setAttribute("aria-label", "Hidden card");
+
+      resetTurn();
+    }, 850);
+  }
+}
+
+function resetTurn() {
+  firstCard = null;
+  secondCard = null;
+  locked = false;
+}
+
+function finishGame() {
+  clearInterval(timer);
+  locked = true;
+
+  message.textContent =
+    "🎉 You won! Completed in " + moves + " moves and " + seconds + " seconds!";
+
+  if (best === null || moves < best) {
+    best = moves;
+    bestDisplay.textContent = best;
+
+    try {
+      localStorage.setItem("playzoMemoryBest", best);
+    } catch (error) {
+      // Best score may not persist if storage is unavailable.
+    }
+
+    message.textContent += " New best score!";
+  }
+}
+
+function restartGame() {
+  clearInterval(timer);
+
+  firstCard = null;
+  secondCard = null;
+  locked = false;
+  moves = 0;
+  matches = 0;
+  seconds = 0;
+  started = false;
+
+  movesDisplay.textContent = "0";
+  timeDisplay.textContent = "0s";
+  bestDisplay.textContent = best === null ? "--" : best;
+  message.textContent = "Find the matching pairs!";
+
+  createBoard();
+}
+
+restartButton.addEventListener("click", restartGame);
+
+restartGame();
+</script>
+
+</body>
+</html>
