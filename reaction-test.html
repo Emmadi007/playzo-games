@@ -98,16 +98,6 @@ class ReactionGame extends Phaser.Scene {
 
     this.panel.on("pointerdown",() => this.tap());
 
-    this.input.on("pointerdown",pointer => {
-      if (
-        pointer.x < 25 || pointer.x > 365 ||
-        pointer.y < 220 || pointer.y > 560
-      ) return;
-
-      this.tap();
-    });
-  }
-
   tap() {
     if (this.state === "idle" ||
         this.state === "result" ||
