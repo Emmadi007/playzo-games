@@ -1,0 +1,281 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Play free online mini games, number puzzles and brain challenges on Playzo.">
+<meta name="theme-color" content="#fff4df">
+<title>Playzo - Free Online Mini Games</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #fffaf2;
+  color: #292344;
+}
+
+header {
+  background: white;
+  padding: 17px 6%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 12px #0000000c;
+}
+
+.logo {
+  font-size: 27px;
+  font-weight: 900;
+  color: #7546d8;
+}
+
+.logo span { color: #ff9e42; }
+
+nav a {
+  text-decoration: none;
+  color: #51486a;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.hero {
+  margin: 22px auto;
+  width: 90%;
+  max-width: 1000px;
+  padding: 38px 22px;
+  border-radius: 25px;
+  text-align: center;
+  background: linear-gradient(135deg,#ffe6a9,#ffd2c5,#e6d5ff);
+}
+
+.hero .emoji {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.hero h1 {
+  font-size: clamp(30px,7vw,48px);
+  color: #4a2c91;
+  margin-bottom: 12px;
+}
+
+.hero p {
+  color: #55466d;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 500px;
+  margin: auto;
+}
+
+.play-button {
+  display: inline-block;
+  margin-top: 22px;
+  background: #7546d8;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.container {
+  max-width: 1000px;
+  width: 90%;
+  margin: 35px auto;
+}
+
+.section-title {
+  font-size: 25px;
+  margin-bottom: 7px;
+}
+
+.section-description {
+  color: #827b91;
+  margin-bottom: 22px;
+  font-size: 14px;
+}
+
+.games {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 16px;
+}
+
+.game-card {
+  border-radius: 20px;
+  padding: 20px 12px;
+  text-align: center;
+  box-shadow: 0 5px 16px #30205010;
+}
+
+.blue { background:#e0ebff; }
+.pink { background:#ffe2e9; }
+.green { background:#e3f5dc; }
+.purple { background:#f0e3ff; }
+
+.game-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.game-card h3 {
+  font-size: 18px;
+  margin-bottom: 9px;
+}
+
+.game-card p {
+  color: #756d84;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.game-link {
+  display: inline-block;
+  padding: 10px 19px;
+  background: #7546d8;
+  color: white;
+  border-radius: 22px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.coming {
+  display: inline-block;
+  padding: 9px 13px;
+  background: #e6e0ec;
+  color: #756b80;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.feature {
+  margin-top: 30px;
+  background: #fff0cb;
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+}
+
+.feature h2 {
+  color: #7044bc;
+  margin-bottom: 10px;
+}
+
+.feature p {
+  color: #645b72;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+footer {
+  margin-top: 40px;
+  background: #30234f;
+  color: white;
+  padding: 30px 15px;
+  text-align: center;
+}
+
+footer p {
+  color: #d5c9e8;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+@media(min-width:650px) {
+  .games {
+    grid-template-columns: repeat(4,minmax(0,1fr));
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🎮 PLAY<span>ZO</span></div>
+  <nav>
+    <a href="#games">Explore Games ↓</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="emoji">🎯 🕹️ 🎮</div>
+  <h1>Play More. Have Fun!</h1>
+  <p>
+    Welcome to Playzo! Discover fun mini games,
+    challenge your brain and beat your best scores.
+    Play anytime, anywhere.
+  </p>
+  <a class="play-button" href="#games">EXPLORE GAMES</a>
+</section>
+
+<main class="container" id="games">
+
+  <h2 class="section-title">🔥 Popular Games</h2>
+  <p class="section-description">
+    Pick a game and start playing. It's free!
+  </p>
+
+  <div class="games">
+
+    <article class="game-card blue">
+      <div class="game-icon">🔢</div>
+      <h3>Number Merge</h3>
+      <p>Merge matching numbers. Can you reach 2048?</p>
+      <a class="game-link" href="./number-merge.html">
+        PLAY NOW →
+      </a>
+    </article>
+
+    <article class="game-card pink">
+      <div class="game-icon">⚡</div>
+      <h3>Reaction Test</h3>
+      <p>Test your speed and challenge your reflexes.</p>
+      <span class="coming">COMING SOON</span>
+    </article>
+
+    <article class="game-card green">
+      <div class="game-icon">🧠</div>
+      <h3>Memory Match</h3>
+      <p>Remember the cards and match all the pairs.</p>
+      <span class="coming">COMING SOON</span>
+    </article>
+
+    <article class="game-card purple">
+      <div class="game-icon">🎨</div>
+      <h3>Color Sort</h3>
+      <p>Sort the colors and solve the puzzle.</p>
+      <span class="coming">COMING SOON</span>
+    </article>
+
+  </div>
+
+  <section class="feature">
+    <h2>🏆 Challenge Yourself!</h2>
+    <p>
+      Improve your score, beat your personal record
+      and challenge your friends.
+      New games are coming to Playzo!
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="logo" style="color:white;">🎮 PLAYZO</div>
+  <p>Play • Challenge • Repeat</p>
+  <p>Free online mini games for everyone.</p>
+  <p>© 2026 Playzo. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
