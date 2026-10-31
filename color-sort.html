@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
 <title>Color Sort Puzzle | PLAYZO</title>
 
 <style>
@@ -14,25 +15,25 @@
 body {
   margin: 0;
   min-height: 100vh;
-  padding: 20px 12px 35px;
+  padding: 18px 12px 35px;
   background: #101827;
-  color: white;
+  color: #fff;
   font-family: Arial, sans-serif;
   text-align: center;
 }
 
 header {
   max-width: 600px;
-  margin: 0 auto 28px;
+  margin: 0 auto 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .logo {
+  color: #65e6c2;
   font-size: 23px;
   font-weight: 900;
-  color: #65e6c2;
 }
 
 .home {
@@ -54,7 +55,7 @@ h1 {
 
 .stats {
   max-width: 450px;
-  margin: auto auto 25px;
+  margin: 0 auto 25px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 9px;
@@ -63,7 +64,7 @@ h1 {
 .stat {
   background: #202d40;
   padding: 13px 5px;
-  border-radius: 12px;
+  border-radius: 13px;
 }
 
 .stat small {
@@ -81,73 +82,137 @@ h1 {
 .game-area {
   max-width: 450px;
   margin: auto;
-  padding: 25px 12px;
+  padding: 30px 10px 22px;
   background: #19263a;
-  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 22px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.2);
 }
 
 #board {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 22px 12px;
+  gap: 28px 10px;
   justify-items: center;
-  max-width: 340px;
+  max-width: 350px;
   margin: auto;
 }
 
 .tube {
-  width: 53px;
-  height: 172px;
-  border: 3px solid #a8bdd2;
+  width: 55px;
+  height: 176px;
+  padding: 4px;
+  border: 4px solid rgba(203,224,245,0.8);
   border-top: 0;
-  border-radius: 0 0 15px 15px;
-  background: rgba(255,255,255,0.04);
+  border-radius: 0 0 23px 23px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.10),
+    rgba(255,255,255,0.025) 45%,
+    rgba(255,255,255,0.12)
+  );
   display: flex;
   flex-direction: column-reverse;
   overflow: hidden;
-  padding: 3px;
   cursor: pointer;
   position: relative;
-  transition: transform 0.15s, border-color 0.15s;
+  transition: transform 0.2s, border-color 0.2s;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tube::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 4px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 5px;
+  background: rgba(255,255,255,0.22);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .tube.selected {
   transform: translateY(-12px);
   border-color: #65e6c2;
-  filter: drop-shadow(0 0 7px #65e6c2);
+  box-shadow: 0 0 18px rgba(101,230,194,0.35);
 }
 
-.tube:focus-visible {
-  outline: 2px solid #65e6c2;
-  outline-offset: 4px;
+.tube:disabled {
+  cursor: default;
 }
 
 .water {
   width: 100%;
   height: 25%;
   flex-shrink: 0;
-  border-radius: 4px;
-  border-top: 2px solid rgba(255,255,255,0.2);
+  position: relative;
+  border-radius: 9px 9px 5px 5px;
+  border-top: 2px solid rgba(255,255,255,0.55);
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.38),
+      transparent 28%,
+      rgba(0,0,0,0.12)
+    );
+  box-shadow:
+    inset 3px 0 5px rgba(255,255,255,0.20),
+    inset -3px 0 5px rgba(0,0,0,0.12);
+  animation: settle 0.3s ease-out;
+}
+
+.water:last-child::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  border-radius: 50%;
+  background: inherit;
+  filter: brightness(1.3);
+}
+
+@keyframes settle {
+  0% { transform: scaleY(0.75); }
+  100% { transform: scaleY(1); }
+}
+
+.tube.pouring .water:last-child {
+  animation: pour 0.35s ease-in-out;
+}
+
+@keyframes pour {
+  0% { transform: translateY(-7px); }
+  50% { transform: translateY(3px); }
+  100% { transform: translateY(0); }
 }
 
 .controls {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
-  margin-top: 25px;
+  gap: 9px;
+  margin-top: 28px;
 }
 
 .controls button {
-  border: 0;
+  border: none;
   border-radius: 25px;
-  padding: 13px 19px;
-  background: #7350d9;
+  padding: 13px 16px;
+  background: #8050e8;
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
   cursor: pointer;
+  touch-action: manipulation;
+}
+
+.controls button:active {
+  transform: scale(0.96);
 }
 
 .controls button:disabled {
@@ -157,9 +222,10 @@ h1 {
 
 #message {
   min-height: 25px;
-  margin-top: 22px;
+  margin-top: 25px;
   color: #65e6c2;
   font-weight: bold;
+  line-height: 1.5;
 }
 
 .instructions {
@@ -178,12 +244,16 @@ footer {
 
 @media (max-width: 370px) {
   .tube {
-    width: 45px;
-    height: 150px;
+    width: 46px;
+    height: 155px;
   }
 
   #board {
-    gap: 18px 8px;
+    gap: 23px 7px;
+  }
+
+  .controls button {
+    padding: 12px 11px;
   }
 }
 </style>
@@ -197,7 +267,7 @@ footer {
 </header>
 
 <h1>🎨 COLOR SORT</h1>
-<p class="subtitle">Sort the colours into separate tubes!</p>
+<p class="subtitle">Pour, sort and solve the colourful puzzle!</p>
 
 <div class="stats">
   <div class="stat">
@@ -217,6 +287,7 @@ footer {
 </div>
 
 <div class="game-area">
+
   <div id="board"></div>
 
   <div class="controls">
@@ -225,14 +296,15 @@ footer {
     <button id="newGame" type="button">NEW GAME</button>
   </div>
 
-  <div id="message">Select a tube to start!</div>
+  <div id="message">Select a tube to begin!</div>
+
 </div>
 
 <p class="instructions">
-  <b>How to play:</b><br>
-  1. Tap a tube to select its top colour.<br>
-  2. Tap another tube to pour the colour.<br>
-  3. You can pour into an empty tube or one with the same top colour.<br>
+  <b>HOW TO PLAY</b><br>
+  1. Tap a tube to select its top liquid colour.<br>
+  2. Tap another tube to pour the liquid.<br>
+  3. Pour into an empty tube or a tube with the same top colour.<br>
   4. Sort all colours into separate tubes to win!
 </p>
 
@@ -240,12 +312,12 @@ footer {
 
 <script>
 const COLORS = [
-  "#ff5757",
-  "#ffb52e",
-  "#35c987",
-  "#3989ff",
-  "#b56cff",
-  "#ff70b8"
+  "#FF3838",
+  "#FFB800",
+  "#00D68F",
+  "#2585FF",
+  "#B44DFF",
+  "#FF4FA3"
 ];
 
 const CAPACITY = 4;
@@ -266,9 +338,13 @@ let started = false;
 let finished = false;
 let history = [];
 let best = null;
+let gameToken = 0;
 
 try {
-  const saved = Number(localStorage.getItem("playzoColorSortBest"));
+  const saved = Number(
+    localStorage.getItem("playzoColorSortBest")
+  );
+
   if (Number.isInteger(saved) && saved > 0) {
     best = saved;
   }
@@ -277,7 +353,8 @@ try {
 }
 
 function updateBest() {
-  bestDisplay.textContent = best === null ? "--" : best;
+  bestDisplay.textContent =
+    best === null ? "--" : best;
 }
 
 function startTimer() {
@@ -285,28 +362,20 @@ function startTimer() {
 
   started = true;
 
+  const token = gameToken;
+
   timer = setInterval(function() {
+    if (token !== gameToken || finished) return;
+
     seconds++;
     timeDisplay.textContent = seconds + "s";
   }, 1000);
 }
 
-function saveHistory() {
-  history.push({
-    tubes: tubes.map(tube => [...tube]),
-    moves: moves
-  });
-
-  if (history.length > 100) {
-    history.shift();
-  }
-
-  undoButton.disabled = false;
-}
-
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
+
     [array[i], array[j]] = [array[j], array[i]];
   }
 
@@ -327,10 +396,11 @@ function makePuzzle() {
   tubes = [];
 
   for (let i = 0; i < COLORS.length; i++) {
-    tubes.push(pool.slice(i * CAPACITY, (i + 1) * CAPACITY));
+    tubes.push(
+      pool.slice(i * CAPACITY, (i + 1) * CAPACITY)
+    );
   }
 
-  // Two empty tubes are added to make the puzzle playable.
   tubes.push([]);
   tubes.push([]);
 }
@@ -343,7 +413,10 @@ function renderBoard() {
 
     button.type = "button";
     button.className = "tube";
-    button.setAttribute("aria-label", "Tube " + (index + 1));
+    button.setAttribute(
+      "aria-label",
+      "Tube " + (index + 1)
+    );
 
     if (selected === index) {
       button.classList.add("selected");
@@ -351,8 +424,10 @@ function renderBoard() {
 
     tube.forEach(function(color) {
       const water = document.createElement("span");
+
       water.className = "water";
       water.style.backgroundColor = color;
+
       button.appendChild(water);
     });
 
@@ -363,7 +438,19 @@ function renderBoard() {
     board.appendChild(button);
   });
 
-  undoButton.disabled = history.length === 0 || finished;
+  undoButton.disabled =
+    history.length === 0 || finished;
+}
+
+function saveHistory() {
+  history.push({
+    tubes: tubes.map(tube => [...tube]),
+    moves: moves
+  });
+
+  if (history.length > 100) {
+    history.shift();
+  }
 }
 
 function handleTubeClick(index) {
@@ -373,12 +460,16 @@ function handleTubeClick(index) {
 
   if (selected === null) {
     if (tube.length === 0) {
-      message.textContent = "Select a tube containing colour first.";
+      message.textContent =
+        "Select a tube containing liquid first.";
       return;
     }
 
     selected = index;
-    message.textContent = "Now select a destination tube.";
+
+    message.textContent =
+      "Now choose a destination tube.";
+
     renderBoard();
     return;
   }
@@ -399,7 +490,8 @@ function handleTubeClick(index) {
     return;
   }
 
-  const movingColor = source[source.length - 1];
+  const movingColor =
+    source[source.length - 1];
 
   if (destination.length >= CAPACITY) {
     message.textContent = "This tube is full!";
@@ -412,7 +504,9 @@ function handleTubeClick(index) {
     destination.length > 0 &&
     destination[destination.length - 1] !== movingColor
   ) {
-    message.textContent = "You can only pour into the same colour or an empty tube.";
+    message.textContent =
+      "Choose an empty tube or the same colour.";
+
     selected = null;
     renderBoard();
     return;
@@ -421,7 +515,11 @@ function handleTubeClick(index) {
   saveHistory();
   startTimer();
 
-  // Pour all connected top pieces of the same colour.
+  // Remember which tubes are involved in this pour.
+  const sourceIndex = selected;
+  const destinationIndex = index;
+
+  // Pour matching connected liquid.
   while (
     source.length > 0 &&
     source[source.length - 1] === movingColor &&
@@ -435,13 +533,19 @@ function handleTubeClick(index) {
 
   selected = null;
 
+  renderBoard();
+
+  // Visual feedback for the liquid movement.
+  const tubeButtons = board.querySelectorAll(".tube");
+
+  tubeButtons[sourceIndex].classList.add("pouring");
+  tubeButtons[destinationIndex].classList.add("pouring");
+
   if (checkWin()) {
     finishGame();
   } else {
-    message.textContent = "Good move! Keep sorting.";
+    message.textContent = "Nice pour! Keep sorting.";
   }
-
-  renderBoard();
 }
 
 function checkWin() {
@@ -456,18 +560,23 @@ function checkWin() {
 
 function finishGame() {
   finished = true;
+
   clearInterval(timer);
 
   message.textContent =
-    "🎉 YOU WON! Completed in " + moves + " moves and " + seconds + " seconds!";
+    "🎉 YOU WON! " + moves +
+    " moves · " + seconds + " seconds!";
 
   if (best === null || moves < best) {
     best = moves;
 
     try {
-      localStorage.setItem("playzoColorSortBest", best);
+      localStorage.setItem(
+        "playzoColorSortBest",
+        String(best)
+      );
     } catch (error) {
-      // The game still works without saved storage.
+      // Game continues if storage is unavailable.
     }
 
     message.textContent += " New personal best!";
@@ -484,15 +593,18 @@ function undoMove() {
 
   tubes = previous.tubes.map(tube => [...tube]);
   moves = previous.moves;
-  movesDisplay.textContent = moves;
 
+  movesDisplay.textContent = moves;
   selected = null;
 
   message.textContent = "Last move undone.";
+
   renderBoard();
 }
 
 function resetGame() {
+  gameToken++;
+
   clearInterval(timer);
 
   moves = 0;
@@ -504,7 +616,8 @@ function resetGame() {
 
   movesDisplay.textContent = "0";
   timeDisplay.textContent = "0s";
-  message.textContent = "Select a tube to start!";
+
+  message.textContent = "Select a tube to begin!";
 
   makePuzzle();
   renderBoard();
@@ -512,12 +625,19 @@ function resetGame() {
 
 function startNewGame() {
   resetGame();
-  message.textContent = "New puzzle ready! Good luck.";
+
+  message.textContent =
+    "New puzzle ready! Good luck.";
 }
 
-document.getElementById("restart").addEventListener("click", resetGame);
-document.getElementById("newGame").addEventListener("click", startNewGame);
-undoButton.addEventListener("click", undoMove);
+document.getElementById("undo")
+  .addEventListener("click", undoMove);
+
+document.getElementById("restart")
+  .addEventListener("click", resetGame);
+
+document.getElementById("newGame")
+  .addEventListener("click", startNewGame);
 
 updateBest();
 resetGame();
