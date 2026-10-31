@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playzo - Number Merge</title>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+<style>
+* { box-sizing: border-box; }
+body {
+ margin:0;
+ background:#10172a;
+ color:white;
+ font-family:Arial,sans-serif;
+}
+#game {
+ width:100%;
+ height:100dvh;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+}
+canvas {max-width:100%;max-height:100%;}
+</style>
+</head>
+<body>
+<div id="game"></div>
+<script>
+class MergeGame extends Phaser.Scene {
+ constructor(){super("MergeGame");}
+
+ create(){
+  this.score=0;
+  this.best=Number(localStorage.getItem("playzoBest")||0);
+  this.grid=Array.from({length:4},()=>Array(4).fill(0));
+  this.cameras.main.setBackgroundColor("#10172a");
+
+  this.add.text(195,55,"PLAYZO",{
+   fontSize:"38px",fontStyle:"bold",color:"#38bdf8"
+  }).setOrigin(.5);
+
+  this.add.text(195,100,"NUMBER MERGE CHALLENGE",{
+   fontSize:"13px",color:"#cbd5e1"
+  }).setOrigin(.5);
+
+  this.scoreText=this.add.text(90,175,"SCORE\n0",{
+   fontSize:"20px",align:"center",
+   backgroundColor:"#26334d",padding:12
+  }).setOrigin(.5);
+
+  this.bestText=this.add.text(295,175,"BEST\n"+this.best,{
+   fontSize:"20px",align:"center",
+   backgroundColor:"#26334d",padding:12
+  }).setOrigin(.5);
+
+  this.board=this.add.container(0,0);
+  this.add.text(195,235,"SWIPE TO MERGE NUMBERS",{
+   fontSize:"12px",color:"#94a3b8"
+  }).setOrigin(.5);
+
+  this.startX=34;
+  this.startY=265;
+  this.cell=76;
+  this.gap=6;
+
+  this.addTile();
+  this.addTile();
+  this.drawBoard();
+
+  this.add.text(195,620,"Combine numbers and reach 2048!",{
+   fontSize:"14px",color:"#cbd5e1"
+  }).setOrigin(.5);
+
+  this.add.text(110,670,"RESTART",{
+   fontSize:"17px",fontStyle:"bold",
+   backgroundColor:"#2563eb",padding:12
+  }).setOrigin(.5).setInteractive().on("pointerdown",()=>this.restart());
+
+  this.add.text(280,670,"SHARE SCORE",{
+   fontSize:"15px",fontStyle:"bold",
+   backgroundColor:"#0f766e",padding:12
+  }).setOrigin(.5).setInteractive().on("pointerdown",()=>this.share());
+
+  this.input.on("pointerdown",p=>{
+   this.startPointer={x:p.x,y:p.y};
+  });
+
+  this.input.on("pointerup",p=>{
+   if(!this.startPointer)return;
+   const dx=p.x-this.startPointer.x;
+   const dy=p.y-this.startPointer.y;
+   this.startPointer=null;
+   if(Math.max(Math.abs(dx),Math.abs(dy))<25)return;
+   this.move(Math.abs(dx)>Math.abs(dy)?
+    (dx>0?"right":"left"):(dy>0?"down":"up"));
+  });
+
+  this.input.keyboard.on("keydown",e=>{
+   const k={ArrowLeft:"left",ArrowRight:"right",
+   ArrowUp:"up",ArrowDown:"down"};
+   if(k[e.key])this.move(k[e.key]);
+  });
+ }
+
+ addTile(){
+  let empty=[];
+  for(let r=0;r<4;r++)for(let c=0;c<4;c++)
+   if(!this.grid[r][c])empty.push([r,c]);
+  if(!empty.length)return;
+  let [r,c]=Phaser.Utils.Array.GetRandom(empty);
+  this.grid[r][c]=Math.random()<.9?2:4;
+ }
+
+ move(dir){
+  if(this.over)return;
+  let changed=false;
+  for(let i=0;i<4;i++){
+   let coords=[];
+   for(let j=0;j<4;j++){
+    if(dir==="left")coords.push([i,j]);
+    if(dir==="right")coords.push([i,3-j]);
+    if(dir==="up")coords.push([j,i]);
+    if(dir==="down")coords.push([3-j,i]);
+   }
+   let before=coords.map(([r,c])=>this.grid[r][c]);
+   let vals=before.filter(v=>v);
+   let out=[];
+   for(let j=0;j<vals.length;j++){
+    if(j+1<vals.length&&vals[j]===vals[j+1]){
+     out.push(vals[j]*2);
+     this.score+=vals[j]*2;
+     j++;
+    }else out.push(vals[j]);
+   }
+   while(out.length<4)out.push(0);
+   for(let j=0;j<4;j++){
+    if(before[j]!==out[j])changed=true;
+    let [r,c]=coords[j];
+    this.grid[r][c]=out[j];
+   }
+  }
+  if(!changed)return;
+  this.addTile();
+  this.best=Math.max(this.best,this.score);
+  localStorage.setItem("playzoBest",this.best);
+  this.drawBoard();
+  if(this.isOver()){
+   this.over=true;
+   this.add.text(195,455,"GAME OVER!",{
+    fontSize:"30px",color:"#f87171",
+    backgroundColor:"#172554",padding:14
+   }).setOrigin(.5).setDepth(10);
+  }
+ }
+
+ isOver(){
+  for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+   if(!this.grid[r][c])return false;
+   if(c<3&&this.grid[r][c]===this.grid[r][c+1])return false;
+   if(r<3&&this.grid[r][c]===this.grid[r+1][c])return false;
+  }
+  return true;
+ }
+
+ drawBoard(){
+  this.board.removeAll(true);
+  let bg=this.add.graphics();
+  bg.fillStyle(0x26334d);
+  bg.fillRoundedRect(25,256,340,340,18);
+  this.board.add(bg);
+
+  let colors={0:0x35445e,2:0xf1e7d5,4:0xf3d5a5,
+  8:0xf5a45b,16:0xf27d50,32:0xf15b49,
+  64:0xe94545,128:0xf0ce54,256:0xe8bf39,
+  512:0xdcae29,1024:0x62b6a0,2048:0x38bdf8};
+
+  for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+   let v=this.grid[r][c];
+   let x=this.startX+c*82,y=this.startY+r*82;
+   let tile=this.add.graphics();
+   tile.fillStyle(colors[v]||0x8b5cf6);
+   tile.fillRoundedRect(x,y,76,76,9);
+   this.board.add(tile);
+   if(v){
+    let t=this.add.text(x+38,y+38,String(v),{
+     fontSize:v>=1024?"21px":v>=128?"26px":"31px",
+     fontStyle:"bold",color:v<=4?"#273247":"#ffffff"
+    }).setOrigin(.5);
+    this.board.add(t);
+   }
+  }
+  this.scoreText.setText("SCORE\n"+this.score);
+  this.bestText.setText("BEST\n"+this.best);
+ }
+
+ isGameOver(){return this.isOver();}
+
+ restart(){
+  this.over=false;
+  this.score=0;
+  this.grid=Array.from({length:4},()=>Array(4).fill(0));
+  this.children.list.filter(o=>o.text==="GAME OVER!")
+   .forEach(o=>o.destroy());
+  this.addTile();
+  this.addTile();
+  this.drawBoard();
+ }
+
+ share(){
+  let msg="I scored "+this.score+" in Playzo! Beat my score!";
+  if(navigator.share)navigator.share({text:msg}).catch(()=>{});
+  else alert(msg);
+ }
+}
+
+new Phaser.Game({
+ type:Phaser.AUTO,
+ parent:"game",
+ width:390,
+ height:720,
+ backgroundColor:"#10172a",
+ scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},
+ scene:[MergeGame]
+});
+</script>
+</body>
+</html>
