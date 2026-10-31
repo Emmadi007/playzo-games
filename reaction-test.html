@@ -4,197 +4,282 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#fff4df">
-<title>Playzo - Reaction Speed Test</title>
-
-<script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
-
+<title>Reaction Speed Test | PLAYZO</title>
 <style>
-* { box-sizing:border-box; }
+* {
+  box-sizing: border-box;
+}
+
 body {
-  margin:0;
-  background:#fff8ed;
-  font-family:Arial,sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: #101827;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 25px 16px;
 }
+
+header {
+  width: 100%;
+  max-width: 650px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 55px;
+}
+
+.logo {
+  font-size: 25px;
+  font-weight: 900;
+  color: #65e6c2;
+}
+
+.home {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 30px;
+  margin: 0 0 12px;
+}
+
+.subtitle {
+  color: #aab6c8;
+  text-align: center;
+  margin-bottom: 35px;
+  line-height: 1.5;
+}
+
+.stats {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 22px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.stat {
+  flex: 1;
+  text-align: center;
+  background: #202d40;
+  padding: 15px 8px;
+  border-radius: 12px;
+}
+
+.stat small {
+  display: block;
+  color: #aab6c8;
+  margin-bottom: 7px;
+}
+
+.stat strong {
+  font-size: 23px;
+  color: #65e6c2;
+}
+
 #game {
-  width:100%;
-  height:100dvh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  width: 100%;
+  max-width: 520px;
+  min-height: 300px;
+  border: none;
+  border-radius: 22px;
+  background: #f5a623;
+  color: #172033;
+  font-size: 28px;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  transition: background 0.15s;
+  touch-action: manipulation;
 }
-canvas {
-  max-width:100%;
-  max-height:100%;
-  touch-action:none;
+
+#game span {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#game.waiting {
+  background: #e94b58;
+  color: white;
+}
+
+#game.go {
+  background: #25c78a;
+  color: #092e22;
+}
+
+#game.result {
+  background: #65b9f5;
+  color: #102b43;
+}
+
+.instructions {
+  max-width: 520px;
+  color: #aab6c8;
+  text-align: center;
+  line-height: 1.7;
+  margin-top: 25px;
+  font-size: 14px;
+}
+
+footer {
+  margin-top: 45px;
+  color: #78869a;
+  font-size: 12px;
 }
 </style>
 </head>
+
 <body>
-<div id="game"></div>
+
+<header>
+  <div class="logo">🎮 PLAYZO</div>
+  <a class="home" href="./index.html">← Home</a>
+</header>
+
+<h1>REACTION SPEED TEST</h1>
+<p class="subtitle">Test how fast your reflexes really are!</p>
+
+<div class="stats">
+  <div class="stat">
+    <small>YOUR TIME</small>
+    <strong id="time">--</strong>
+  </div>
+  <div class="stat">
+    <small>PERSONAL BEST</small>
+    <strong id="best">--</strong>
+  </div>
+</div>
+
+<button id="game" type="button">
+  TAP TO START
+  <span>Wait for the green screen before tapping!</span>
+</button>
+
+<p class="instructions">
+  How to play:<br>
+  1. Tap the orange area to begin.<br>
+  2. Wait until the area turns green.<br>
+  3. Tap as quickly as possible.<br>
+  4. Don't tap early!
+</p>
+
+<footer>© 2026 PLAYZO · Play More. Have Fun.</footer>
 
 <script>
-class ReactionGame extends Phaser.Scene {
-  constructor() {
-    super("ReactionGame");
+const game = document.getElementById("game");
+const timeDisplay = document.getElementById("time");
+const bestDisplay = document.getElementById("best");
+
+let phase = "idle";
+let startTime = 0;
+let timer = null;
+let best = null;
+
+try {
+  best = Number(localStorage.getItem("playzoReactionBest"));
+  if (!Number.isFinite(best) || best <= 0) best = null;
+} catch (error) {
+  best = null;
+}
+
+if (best !== null) {
+  bestDisplay.textContent = best + " ms";
+}
+
+function showButton(title, message, className) {
+  game.className = className || "";
+  game.innerHTML = title + "<span>" + message + "</span>";
+}
+
+function startGame() {
+  clearTimeout(timer);
+  phase = "waiting";
+  timeDisplay.textContent = "--";
+
+  showButton(
+    "WAIT FOR GREEN...",
+    "Don't tap yet! Tap too early and you lose.",
+    "waiting"
+  );
+
+  const delay = Math.floor(Math.random() * 2500) + 1500;
+
+  timer = setTimeout(function() {
+    phase = "go";
+    startTime = performance.now();
+
+    showButton(
+      "TAP NOW!",
+      "Quick! Tap the green area!",
+      "go"
+    );
+  }, delay);
+}
+
+function handleTap() {
+  if (phase === "idle" || phase === "early" || phase === "result") {
+    startGame();
+    return;
   }
 
-  create() {
-    this.state = "idle";
-    this.best = Number(localStorage.getItem("playzoReactionBest") || 0);
-    this.timer = null;
+  if (phase === "waiting") {
+    clearTimeout(timer);
+    phase = "early";
 
-    this.cameras.main.setBackgroundColor("#fff8ed");
+    showButton(
+      "TOO EARLY!",
+      "Wait for green next time. Tap to try again.",
+      ""
+    );
+    return;
+  }
 
-    this.add.text(195,65,"⚡ PLAYZO",{
-      fontSize:"38px",
-      fontStyle:"bold",
-      color:"#7546d8"
-    }).setOrigin(0.5);
+  if (phase === "go") {
+    const reaction = Math.round(performance.now() - startTime);
 
-    this.add.text(195,115,"REACTION SPEED TEST",{
-      fontSize:"17px",
-      fontStyle:"bold",
-      color:"#51486a"
-    }).setOrigin(0.5);
+    phase = "result";
+    timeDisplay.textContent = reaction + " ms";
 
-    this.bestText = this.add.text(195,170,
-      "BEST: " + (this.best ? this.best+" ms" : "--"),{
-      fontSize:"19px",
-      color:"#7546d8",
-      fontStyle:"bold"
-    }).setOrigin(0.5);
+    if (best === null || reaction < best) {
+      best = reaction;
+      bestDisplay.textContent = best + " ms";
 
-    this.panel = this.add.rectangle(
-      195,390,340,340,0xef4444
-    ).setInteractive();
-
-    this.message = this.add.text(195,350,
-      "WAIT FOR GREEN!",{
-      fontSize:"28px",
-      fontStyle:"bold",
-      color:"#ffffff",
-      align:"center"
-    }).setOrigin(0.5);
-
-    this.instruction = this.add.text(195,420,
-      "Tap to start",{
-      fontSize:"19px",
-      color:"#ffffff"
-    }).setOrigin(0.5);
-
-    this.add.text(195,610,
-      "Test your reflexes. Beat your best time!",{
-      fontSize:"14px",
-      color:"#51486a",
-      align:"center"
-    }).setOrigin(0.5);
-
-    this.add.text(195,670,
-      "PLAYZO • PLAY • CHALLENGE • REPEAT",{
-      fontSize:"12px",
-      color:"#9b8eae"
-    }).setOrigin(0.5);
-
-    this.panel.on("pointerdown",() => this.tap());
-
-  tap() {
-    if (this.state === "idle" ||
-        this.state === "result" ||
-        this.state === "false") {
-      this.startRound();
-      return;
-    }
-
-    if (this.state === "waiting") {
-      if (this.timer) this.timer.remove();
-      this.state = "false";
-      this.showFalseStart();
-      return;
-    }
-
-    if (this.state === "ready") {
-      const elapsed = Math.round(
-        performance.now() - this.startTime
-      );
-
-      this.state = "result";
-
-      if (!this.best || elapsed < this.best) {
-        this.best = elapsed;
-        localStorage.setItem(
-          "playzoReactionBest",this.best
-        );
+      try {
+        localStorage.setItem("playzoReactionBest", best);
+      } catch (error) {
+        // Game still works if browser storage is unavailable.
       }
 
-      this.showResult(elapsed);
+      showButton(
+        reaction + " ms",
+        "New personal best! Tap to play again.",
+        "result"
+      );
+    } else {
+      showButton(
+        reaction + " ms",
+        "Your reaction time! Tap to try again.",
+        "result"
+      );
     }
-  }
-
-  startRound() {
-    this.state = "waiting";
-
-    this.panel.setFillStyle(0xef4444);
-
-    this.message.setText("WAIT FOR GREEN!");
-    this.instruction.setText("Don't tap yet!");
-    this.message.setColor("#ffffff");
-    this.instruction.setColor("#ffffff");
-
-    const delay = Phaser.Math.Between(1500,4000);
-
-    this.timer = this.time.delayedCall(delay,() => {
-      if (this.state !== "waiting") return;
-
-      this.state = "ready";
-      this.startTime = performance.now();
-
-      this.panel.setFillStyle(0x16a34a);
-      this.message.setText("TAP NOW!");
-      this.instruction.setText("GO! GO! GO!");
-    });
-  }
-
-  showFalseStart() {
-    this.panel.setFillStyle(0xf59e0b);
-    this.message.setText("TOO EARLY!");
-    this.instruction.setText("Tap to try again");
-  }
-
-  showResult(time) {
-    this.panel.setFillStyle(0x7546d8);
-    this.message.setText(time + " ms");
-
-    let rating = "";
-
-    if (time < 200) rating = "Lightning fast! ⚡";
-    else if (time < 250) rating = "Excellent! 🔥";
-    else if (time < 350) rating = "Very good! 👏";
-    else if (time < 500) rating = "Good try! 👍";
-    else rating = "Keep practising!";
-
-    this.instruction.setText(
-      rating + "\nTap to play again"
-    );
-
-    this.bestText.setText("BEST: " + this.best + " ms");
   }
 }
 
-const config = {
-  type:Phaser.AUTO,
-  parent:"game",
-  width:390,
-  height:720,
-  backgroundColor:"#fff8ed",
-  scale:{
-    mode:Phaser.Scale.FIT,
-    autoCenter:Phaser.Scale.CENTER_BOTH
-  },
-  scene:[ReactionGame]
-};
-
-new Phaser.Game(config);
+game.addEventListener("click", handleTap);
 </script>
+
 </body>
 </html>
